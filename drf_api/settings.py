@@ -18,6 +18,8 @@ if os.path.exists('env.py'):
 import os
 import dj_database_url
 
+import re
+
 CLOUDINARY_STORAGE = {
     'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL')
 }
@@ -35,10 +37,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEV' in os.environ
+# DEBUG = 'DEV' in os.environ
+DEBUG = False
 
 ALLOWED_HOSTS = ['8000-kjc-minirestproject-h2miborhq2v.ws-eu101.gitpod.io', 
-'8000-kjc-minirestproject-h2miborhq2v.ws-eu102.gitpod.io', 'rest-framework.herokuapp.com']
+'8000-kjc-minirestproject-h2miborhq2v.ws-eu102.gitpod.io',  os.environ.get('ALLOWED_HOST'),]
 
 
 # Application definition
@@ -62,6 +65,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount', 
     'dj_rest_auth.registration',
     'corsheaders',
+
     'profiles',
     'posts',
     'comments',
@@ -109,13 +113,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-if 'CLIENT_ORIGIN' in os.environ:
-    CORS_ALLOWED_ORIGINS = [
-        os.environ.get('CLIENT_ORIGIN')
-    ]
-else:
+if 'CLIENT_ORIGIN_DEV' in os.environ:
+    extracted_url = re.match(r'^.+-', os.environ.get('CLIENT_ORIGIN_DEV', ''), re.IGNORECASE).group(0)
     CORS_ALLOWED_ORIGIN_REGEXES = [
-        r"^https://.*\.gitpod\.io$",
+        rf"{extracted_url}(eu|us)\d+\w\.gitpod\.io$",
     ]
 
 CORS_ALLOW_CREDENTIALS = True
